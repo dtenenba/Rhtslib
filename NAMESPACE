@@ -1,4 +1,4 @@
-## useDynLib(Rhtslib, .registration=TRUE)
+useDynLib(Rhtslib, .registration=TRUE)
 
 import(zlibbioc)
 

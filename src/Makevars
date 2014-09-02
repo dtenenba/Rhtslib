@@ -1,0 +1,34 @@
+PKG_LIBS += -lz
+
+DYLIB_EXT = $(shell "${R_HOME}/bin/R" CMD config DYLIB_EXT)
+PLATFORM := $(shell uname -s)
+ifeq "$(PLATFORM)" "Darwin"
+SHLIB_LN = libhts.1.dylib
+else
+SHLIB_LN = libhts.so.1
+endif
+
+HTSDIR = ./htslib
+
+.PHONY: all libhts clean
+
+all: $(SHLIB)
+
+$(SHLIB): Rhtslib.o
+
+Rhtslib.o: libhts
+
+libhts: $(HTSDIR)/libhts$(DYLIB_EXT)
+	@mkdir ${R_PACKAGE_DIR}/lib
+	cp $(HTSDIR)/libhts$(DYLIB_EXT) ${R_PACKAGE_DIR}/lib/
+	ln -sf ${R_PACKAGE_DIR}/lib/libhts$(DYLIB_EXT) \
+	    ${R_PACKAGE_DIR}/lib/$(SHLIB_LN)
+	@mkdir ${R_PACKAGE_DIR}/include
+	cp $(HTSDIR)/htslib/*h ${R_PACKAGE_DIR}/include/
+
+include $(HTSDIR)/htslib.mk
+
+clean: clean-htslib
+	rm -rf "${R_PACKAGE_DIR}/include" "${R_PACKAGE_DIR}/lib"
+	rm -f *.a *.o *.so *.dll *.dylib
+
