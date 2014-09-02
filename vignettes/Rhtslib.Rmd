@@ -1,0 +1,48 @@
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Motivation and Use of Rhtslib}
+
+# Motivation and Use of Rhtslib
+
+- Author: Martin Morgan, [mtmorgan@fhcrc.org](mailto:mtmorgan@fhcrc.org)
+- Modification date: 17 August, 2014
+
+This package provides a compiled version of the C
+[`htslib`](http://www.htslib.org/) for high-throughput seqeunce
+analysis. It is primary useful to developers of other R packages who
+want to use the htslib facilities in the C code of their own packages.
+
+## Motivation
+
+There are several advantages to using `Rhtslib`, rather than requiring
+an explict user system dependency on `htslib` directly.
+
+- Using `Rhtslib` means that your users (who are not always
+  sophisticated system administrators) do not need to manually install
+  their own library.
+- Your application uses a defined version of `htslib`, so that you as
+  a developer can rely on presence of specific features (and bugs!)
+  rather than writing code to manage different library versions.
+  
+## Use
+
+Packages with C code should create a file `src/Makevars` with the
+following lines
+
+    PKG_CFLAGS+=$(shell echo 'Rhtslib::pkgconfig("PKG_CFLAGS")'|\
+        "${R_HOME}/bin/R" --vanilla --slave)
+    PKG_LIBS+=$(shell echo 'Rhtslib::pkgconfig("PKG_LIBS")'|\
+        "${R_HOME}/bin/R" --vanilla --slave)
+    
+In C or C++ code files, use standard techniques, e.g., `#include
+"htslib.h"`. Header files are available at
+
+```{R headers}
+system.file(package="Rhtslib", "include")
+```
+
+## Implementation notes
+
+The procedure above links to the _shared_ version of the htslib
+library. This will work on Linux, Mac, and Windows OS, but some tweaks
+may be needed on other platforms; please let
+[me](mailto:mtmorgan@fhcrc.org) know of incompatibilities.
